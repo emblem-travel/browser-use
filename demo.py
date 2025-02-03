@@ -23,7 +23,7 @@ class AvailabilityItems(BaseModel):
 async def main():
 	controller = Controller(output_model=AvailabilityItems)
 	agent = Agent(
-		task='find the availabilities for the coconut club singapore beach road for 1st march 2025. start from https://captcha.com/demos/features/captcha-demo.aspx. if you encountered a captcha, set the captcha_encountered in the output to true',
+		task='find the availabilities for Trattoria dall Oste BISTECCA ALLA FIORENTINA in Via Luigi Alamanni, 3, 50123, Firenze from 1 march to 3 march.',
 		llm=ChatGoogleGenerativeAI(model='gemini-2.0-flash-exp'),
 		controller=controller,
 		browser_context=BrowserContext(

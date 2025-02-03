@@ -23,7 +23,8 @@ class SystemPrompt:
      "current_state": {
 		"page_summary": "Quick detailed summary of new information from the current page which is not yet in the task history memory. Be specific with details which are important for the task. This is not on the meta level, but should be facts. If all the information is already in the task history memory, leave this empty.",
 		"evaluation_previous_goal": "Success|Failed|Unknown - Analyze the current elements and the image to check if the previous goals/actions are successful like intended by the task. Ignore the action result. The website is the ground truth. Also mention if something unexpected happened like new suggestions in an input field. Shortly state why/why not",
-       "memory": "Description of what has been done and what you need to remember. Be very specific. Count here ALWAYS how many times you have done something and how many remain. E.g. 0 out of 10 websites analyzed. Continue with abc and xyz",
+        "memory": "Description of what has been done and what you need to remember. Be very specific. Count here ALWAYS how many times you have done something and how many remain. E.g. 0 out of 10 websites analyzed. Continue with abc and xyz",
+	    "availability": [{"date": "02122024", "times": ["12:30", "13:00"], "status": "completed"},{"date": "03122024", "times": ["12:30", "13:00"], "status": "in_progress"}],
        "next_goal": "What needs to be done with the next actions"
      },
      "action": [
@@ -91,10 +92,13 @@ class SystemPrompt:
 
 9. Long tasks:
 - If the task is long keep track of the status in the memory. If the ultimate task requires multiple subinformation, keep track of the status in the memory.
-- If you get stuck, 
 
 10. Extraction:
-- If your task is to find information or do research - call extract_page_content on the specific pages to get and store the information.
+- When you have reached the correct date (double check that you are on the correct date) - call extract_page_content on the specific pages to get and store the information.
+- When extracting availability timings for any venue, you must first determine if you have extracted all timings for the current date.
+- Always ask explicitly: "Have we extracted all timings for [current date]?" before navigating to the next date.
+- Store the extracted timings in your memory under 'availability'.
+- Only proceed to the next date after confirming that the extraction for the current date is complete.
 
 """
 		text += f'   - use maximum {self.max_actions_per_step} actions per sequence'
@@ -126,13 +130,14 @@ Notes:
 		Get the system prompt for the agent.
 
 		Returns:
-		    str: Formatted system prompt
+		    str: Formatted system promp		t
 		"""
 
-		AGENT_PROMPT = f"""You are a precise browser automation agent that interacts with websites through structured commands. Your role is to:
+		AGENT_PROMPT = f"""You are a precise browser automation agent designed to interact with websites through structured commands to extract availability data for venues (e.g. stays, restaurants, events, attractions, etc.). Your role is to:
 1. Analyze the provided webpage elements and structure
 2. Use the given information to accomplish the ultimate task
 3. Respond with valid JSON containing your next action sequence and state assessment
+4. Extract data across multiple pages, ensuring that capture all availabilities (i) for any given date, and (ii) across all dates in the given range
 
 
 {self.input_format()}

@@ -41,6 +41,7 @@ class AgentBrain(BaseModel):
 	evaluation_previous_goal: str
 	memory: str
 	next_goal: str
+	extraction_data: Optional[str] = ""
 
 
 class AgentOutput(BaseModel):
