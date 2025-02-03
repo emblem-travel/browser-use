@@ -6,9 +6,9 @@ import asyncio
 import logging
 from dataclasses import dataclass, field
 
-from playwright._impl._api_structures import ProxySettings
-from playwright.async_api import Browser as PlaywrightBrowser
-from playwright.async_api import (
+from patchright._impl._api_structures import ProxySettings
+from patchright.async_api import Browser as PlaywrightBrowser
+from patchright.async_api import (
 	Playwright,
 	async_playwright,
 )
@@ -71,8 +71,8 @@ class Browser:
 	):
 		logger.debug('Initializing new browser')
 		self.config = config
-		self.playwright: Playwright | None = None
-		self.playwright_browser: PlaywrightBrowser | None = None
+		self.patchright: Playwright | None = None
+		self.patchright_browser: PlaywrightBrowser | None = None
 
 		self.disable_security_args = []
 		if self.config.disable_security:
@@ -88,40 +88,40 @@ class Browser:
 		"""Create a browser context"""
 		return BrowserContext(config=config, browser=self)
 
-	async def get_playwright_browser(self) -> PlaywrightBrowser:
+	async def get_patchright_browser(self) -> PlaywrightBrowser:
 		"""Get a browser context"""
-		if self.playwright_browser is None:
+		if self.patchright_browser is None:
 			return await self._init()
 
-		return self.playwright_browser
+		return self.patchright_browser
 
 	async def _init(self):
 		"""Initialize the browser session"""
-		playwright = await async_playwright().start()
-		browser = await self._setup_browser(playwright)
+		patchright = await async_playwright().start()
+		browser = await self._setup_browser(patchright)
 
-		self.playwright = playwright
-		self.playwright_browser = browser
+		self.patchright = patchright
+		self.patchright_browser = browser
 
-		return self.playwright_browser
+		return self.patchright_browser
 
-	async def _setup_cdp(self, playwright: Playwright) -> PlaywrightBrowser:
+	async def _setup_cdp(self, patchright: Playwright) -> PlaywrightBrowser:
 		"""Sets up and returns a Playwright Browser instance with anti-detection measures."""
 		if not self.config.cdp_url:
 			raise ValueError('CDP URL is required')
 		logger.info(f'Connecting to remote browser via CDP {self.config.cdp_url}')
-		browser = await playwright.chromium.connect_over_cdp(self.config.cdp_url)
+		browser = await patchright.chromium.connect_over_cdp(self.config.cdp_url)
 		return browser
 
-	async def _setup_wss(self, playwright: Playwright) -> PlaywrightBrowser:
+	async def _setup_wss(self, patchright: Playwright) -> PlaywrightBrowser:
 		"""Sets up and returns a Playwright Browser instance with anti-detection measures."""
 		if not self.config.wss_url:
 			raise ValueError('WSS URL is required')
 		logger.info(f'Connecting to remote browser via WSS {self.config.wss_url}')
-		browser = await playwright.chromium.connect(self.config.wss_url)
+		browser = await patchright.chromium.connect(self.config.wss_url)
 		return browser
 
-	async def _setup_browser_with_instance(self, playwright: Playwright) -> PlaywrightBrowser:
+	async def _setup_browser_with_instance(self, patchright: Playwright) -> PlaywrightBrowser:
 		"""Sets up and returns a Playwright Browser instance with anti-detection measures."""
 		if not self.config.chrome_instance_path:
 			raise ValueError('Chrome instance path is required')
@@ -134,7 +134,7 @@ class Browser:
 			response = requests.get('http://localhost:9222/json/version', timeout=2)
 			if response.status_code == 200:
 				logger.info('Reusing existing Chrome instance')
-				browser = await playwright.chromium.connect_over_cdp(
+				browser = await patchright.chromium.connect_over_cdp(
 					endpoint_url='http://localhost:9222',
 					timeout=20000,  # 20 second timeout for connection
 				)
@@ -164,7 +164,7 @@ class Browser:
 
 		# Attempt to connect again after starting a new instance
 		try:
-			browser = await playwright.chromium.connect_over_cdp(
+			browser = await patchright.chromium.connect_over_cdp(
 				endpoint_url='http://localhost:9222',
 				timeout=20000,  # 20 second timeout for connection
 			)
@@ -175,9 +175,9 @@ class Browser:
 				' To start chrome in Debug mode, you need to close all existing Chrome instances and try again otherwise we can not connect to the instance.'
 			)
 
-	async def _setup_standard_browser(self, playwright: Playwright) -> PlaywrightBrowser:
+	async def _setup_standard_browser(self, patchright: Playwright) -> PlaywrightBrowser:
 		"""Sets up and returns a Playwright Browser instance with anti-detection measures."""
-		browser = await playwright.chromium.launch(
+		browser = await patchright.chromium.launch(
 			headless=self.config.headless,
 			args=[
 				'--no-sandbox',
@@ -202,17 +202,17 @@ class Browser:
 		# convert to Browser
 		return browser
 
-	async def _setup_browser(self, playwright: Playwright) -> PlaywrightBrowser:
+	async def _setup_browser(self, patchright: Playwright) -> PlaywrightBrowser:
 		"""Sets up and returns a Playwright Browser instance with anti-detection measures."""
 		try:
 			if self.config.cdp_url:
-				return await self._setup_cdp(playwright)
+				return await self._setup_cdp(patchright)
 			if self.config.wss_url:
-				return await self._setup_wss(playwright)
+				return await self._setup_wss(patchright)
 			elif self.config.chrome_instance_path:
-				return await self._setup_browser_with_instance(playwright)
+				return await self._setup_browser_with_instance(patchright)
 			else:
-				return await self._setup_standard_browser(playwright)
+				return await self._setup_standard_browser(patchright)
 		except Exception as e:
 			logger.error(f'Failed to initialize Playwright browser: {str(e)}')
 			raise
@@ -220,20 +220,20 @@ class Browser:
 	async def close(self):
 		"""Close the browser instance"""
 		try:
-			if self.playwright_browser:
-				await self.playwright_browser.close()
-			if self.playwright:
-				await self.playwright.stop()
+			if self.patchright_browser:
+				await self.patchright_browser.close()
+			if self.patchright:
+				await self.patchright.stop()
 		except Exception as e:
 			logger.debug(f'Failed to close browser properly: {e}')
 		finally:
-			self.playwright_browser = None
-			self.playwright = None
+			self.patchright_browser = None
+			self.patchright = None
 
 	def __del__(self):
 		"""Async cleanup when object is destroyed"""
 		try:
-			if self.playwright_browser or self.playwright:
+			if self.patchright_browser or self.patchright:
 				loop = asyncio.get_running_loop()
 				if loop.is_running():
 					loop.create_task(self.close())

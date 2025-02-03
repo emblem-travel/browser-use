@@ -91,7 +91,7 @@ await browser.close()
 
 ```python
 from browser_use import Agent, Browser
-from playwright.async_api import BrowserContext
+from patchright.async_api import BrowserContext
 
 # Use specific browser context (preferred method)
 async with await browser.new_context() as context:
@@ -117,7 +117,7 @@ await browser.close()
 ```
 
 For more information about how browser context works, refer to the [Playwright
-documentation](https://playwright.dev/docs/api/class-browsercontext).
+documentation](https://patchright.dev/docs/api/class-browsercontext).
 
 <Note>
   You can reuse the same context for multiple agents. If you do nothing, the

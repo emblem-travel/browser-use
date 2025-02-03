@@ -13,11 +13,11 @@ import uuid
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Optional, TypedDict
 
-from playwright.async_api import Browser as PlaywrightBrowser
-from playwright.async_api import (
+from patchright.async_api import Browser as PlaywrightBrowser
+from patchright.async_api import (
 	BrowserContext as PlaywrightBrowserContext,
 )
-from playwright.async_api import (
+from patchright.async_api import (
 	ElementHandle,
 	FrameLocator,
 	Page,
@@ -198,9 +198,9 @@ class BrowserContext:
 		"""Initialize the browser session"""
 		logger.debug('Initializing browser context')
 
-		playwright_browser = await self.browser.get_playwright_browser()
+		patchright_browser = await self.browser.get_patchright_browser()
 
-		context = await self._create_context(playwright_browser)
+		context = await self._create_context(patchright_browser)
 		self._add_new_page_listener(context)
 		page = await context.new_page()
 
@@ -690,13 +690,13 @@ class BrowserContext:
 				"""
                 try {
                     // Remove the highlight container and all its contents
-                    const container = document.getElementById('playwright-highlight-container');
+                    const container = document.getElementById('patchright-highlight-container');
                     if (container) {
                         container.remove();
                     }
 
                     // Remove highlight attributes from elements
-                    const highlightedElements = document.querySelectorAll('[browser-user-highlight-id^="playwright-highlight-"]');
+                    const highlightedElements = document.querySelectorAll('[browser-user-highlight-id^="patchright-highlight-"]');
                     highlightedElements.forEach(el => {
                         el.removeAttribute('browser-user-highlight-id');
                     });

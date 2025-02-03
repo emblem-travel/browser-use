@@ -28,10 +28,10 @@ With pip:
 pip install browser-use
 ```
 
-install playwright:
+install patchright:
 
 ```bash
-playwright install
+patchright install
 ```
 
 Spin up your agent:

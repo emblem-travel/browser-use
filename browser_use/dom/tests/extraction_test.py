@@ -53,7 +53,7 @@ async def test_process_html_file():
 				count, tokens = await test_viewport(expansion, description)
 				results.append((count, tokens))
 				input('Press Enter to continue...')
-				await page.evaluate('document.getElementById("playwright-highlight-container")?.remove()')
+				await page.evaluate('document.getElementById("patchright-highlight-container")?.remove()')
 
 			# Print comparison summary
 			print('\nComparison Summary:')
@@ -66,7 +66,7 @@ async def test_process_html_file():
 			input('\nPress Enter to continue to next website...')
 
 			# Clear highlights before next website
-			await page.evaluate('document.getElementById("playwright-highlight-container")?.remove()')
+			await page.evaluate('document.getElementById("patchright-highlight-container")?.remove()')
 
 
 async def test_focus_vs_all_elements():
@@ -97,7 +97,7 @@ async def test_focus_vs_all_elements():
 			print(f'Total number of elements: {total_elements}')
 
 			answer = input('Which element do you want to focus on? (Enter index): ')
-			await page.evaluate('document.getElementById("playwright-highlight-container")?.remove()')
+			await page.evaluate('document.getElementById("patchright-highlight-container")?.remove()')
 
 			focus_element = int(answer)
 			focus_state = await time_execution_sync('get_focused_element')(dom_service.get_clickable_elements)(
@@ -108,7 +108,7 @@ async def test_focus_vs_all_elements():
 			print(f'Number of highlighted elements when focused: {focus_element_count}')
 
 			input('Press Enter to clear highlights and continue...')
-			await page.evaluate('document.getElementById("playwright-highlight-container")?.remove()')
+			await page.evaluate('document.getElementById("patchright-highlight-container")?.remove()')
 
 
 if __name__ == '__main__':
