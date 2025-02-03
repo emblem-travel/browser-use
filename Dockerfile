@@ -66,7 +66,9 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # Place executables in the environment at the front of the path
 ENV PATH="/app/.venv/bin:$PATH"
 
+ENV ANONYMIZED_TELEMETRY=false
+ENV BROWSER_USE_LOGGING_LEVEL=info
+
 RUN patchright install chromium
 
-# Reset the entrypoint, don't invoke `uv` automatically
-ENTRYPOINT ["uv", "run", "consumer.py"]
+ENTRYPOINT xvfb-run -a -s "-screen 0 1024x768x24" uv run consumer.py

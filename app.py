@@ -25,6 +25,7 @@ async def run_browser_use(
 	controller = Controller(output_model=AvailabilityItems)
 	agent = Agent(
 		task=task,
+		generate_gif=False,
 		llm=ChatGoogleGenerativeAI(model='gemini-2.0-flash-exp', api_key=gemini_api_key),
 		controller=controller,
 		browser_context=BrowserContext(
