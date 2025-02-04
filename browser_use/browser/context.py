@@ -638,7 +638,7 @@ class BrowserContext:
 				highlight_elements=self.config.highlight_elements,
 			)
 
-			screenshot_b64 = await self.take_screenshot()
+			screenshot_b64 = await self.take_screenshot(full_page=True)
 			pixels_above, pixels_below = await self.get_scroll_info(page)
 
 			self.current_state = BrowserState(
