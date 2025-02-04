@@ -23,7 +23,8 @@ class AvailabilityItems(BaseModel):
 async def main():
 	controller = Controller(output_model=AvailabilityItems)
 	agent = Agent(
-		task='find the availabilities for the coconut club in singapore from 1st march 2025 to 3rd march 2025',
+		task='find me availabilities for meow wolf las vegas for 3rd march 2025 to 5th march 2025.',
+		validate_output=True,
 		llm=ChatGoogleGenerativeAI(model='gemini-2.0-flash-exp'),
 		controller=controller,
 		browser_context=BrowserContext(
@@ -34,6 +35,7 @@ async def main():
 					'width': 1000,
 					'height': 1920,
 				},
+				viewport_expansion=-1,
 			),
 		),
 	)

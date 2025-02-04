@@ -3,7 +3,7 @@ import json
 import logging
 from typing import Callable, Dict, Optional, Type
 
-from langchain_core.prompts import PromptTemplate
+from langchain_core.messages import HumanMessage
 from pydantic import BaseModel
 
 from browser_use.agent.views import ActionModel, ActionResult
@@ -185,14 +185,19 @@ class Controller:
 		)
 		async def extract_availability_content(goal: str, browser: BrowserContext, page_extraction_llm: BaseChatModel):
 			screenshot = await browser.take_screenshot(full_page=True)
-
-			prompt = (
-				'Your task is to extract the availability content from the screenshot. You will be given a screenshot and a goal and you should extract all relevant information around this goal from the screenshot. Respond in json format:\n\n'
-				f'[data:image/png;base64,{screenshot}]\n\n'
-				f'Extraction goal: {goal}'
+			message = HumanMessage(
+				content=[
+					{
+						'type': 'text',
+						'text': 'Your task is to extract the availability content from the screenshot. You will be given a screenshot and a goal and you should extract all relevant information around this goal from the screenshot. Respond in json format',
+					},
+					{'type': 'text', 'text': f'Extraction goal: {goal}'},
+					{'type': 'image_url', 'image_url': f'data:image/png;base64,{screenshot}'},
+				]
 			)
+
 			try:
-				output = page_extraction_llm.invoke(prompt)
+				output = page_extraction_llm.invoke([message])
 				msg = f'📄  Availability Extracted from screenshot\n: {output.content}\n'
 				logger.info(msg)
 				return ActionResult(extracted_content=msg, include_in_memory=True)

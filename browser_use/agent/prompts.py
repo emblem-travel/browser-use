@@ -24,7 +24,7 @@ class SystemPrompt:
 		"page_summary": "Quick detailed summary of new information from the current page which is not yet in the task history memory. Be specific with details which are important for the task. This is not on the meta level, but should be facts. If all the information is already in the task history memory, leave this empty.",
 		"evaluation_previous_goal": "Success|Failed|Unknown - Analyze the current elements and the image to check if the previous goals/actions are successful like intended by the task. Ignore the action result. The website is the ground truth. Also mention if something unexpected happened like new suggestions in an input field. Shortly state why/why not",
         "memory": "Description of what has been done and what you need to remember. Be very specific. Count here ALWAYS how many times you have done something and how many remain. E.g. 0 out of 10 websites analyzed. Continue with abc and xyz",
-	    "availability": [{"date": "02122024", "times": ["12:30", "13:00"], "status": "completed"},{"date": "03122024", "times": ["12:30", "13:00"], "status": "in_progress"}],
+	    "availability": [{"date": "2025-01-15", "times": ["12:30", "13:00"], "status": "completed"},{"date": "2025-01-16", "times": ["12:30", "13:00"], "status": "in_progress"}],
        "next_goal": "What needs to be done with the next actions"
      },
      "action": [
@@ -99,6 +99,9 @@ class SystemPrompt:
 - Always ask explicitly: "Have we extracted all timings for [current date]?" before navigating to the next date.
 - Store the extracted timings in your memory under 'availability'.
 - Only proceed to the next date after confirming that the extraction for the current date is complete.
+
+11. DATE FORMAT:
+- ALWAYS USE yyyy-MM-dd format for dates. For example, 2025-01-15
 
 """
 		text += f'   - use maximum {self.max_actions_per_step} actions per sequence'
