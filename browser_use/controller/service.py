@@ -157,27 +157,48 @@ class Controller:
 			return ActionResult(extracted_content=msg, include_in_memory=True)
 
 		# Content Actions
+		# @self.registry.action(
+		# 	'Extract page content to retrieve specific information from the page, e.g. all company names, a specifc description, all information about, links with companies in structured format or simply links',
+		# )
+		# async def extract_content(goal: str, browser: BrowserContext, page_extraction_llm: BaseChatModel):
+		# 	page = await browser.get_current_page()
+		# 	import markdownify
+		#
+		# 	content = markdownify.markdownify(await page.content())
+		#
+		# 	prompt = 'Your task is to extract the content of the page. You will be given a page and a goal and you should extract all relevant information around this goal from the page. If the goal is vague, summarize the page. Respond in json format. Extraction goal: {goal}, Page: {page}'
+		# 	template = PromptTemplate(input_variables=['goal', 'page'], template=prompt)
+		# 	try:
+		# 		output = page_extraction_llm.invoke(template.format(goal=goal, page=content))
+		# 		msg = f'📄  Extracted from page\n: {output.content}\n'
+		# 		logger.info(msg)
+		# 		return ActionResult(extracted_content=msg, include_in_memory=True)
+		# 	except Exception as e:
+		# 		logger.debug(f'Error extracting content: {e}')
+		# 		msg = f'📄  Extracted from page\n: {content}\n'
+		# 		logger.info(msg)
+		# 		return ActionResult(extracted_content=msg)
+
+		# Availability extraction action
 		@self.registry.action(
-			'Extract page content to retrieve specific information from the page, e.g. all company names, a specifc description, all information about, links with companies in structured format or simply links',
+			'Extract Availability information from the page, given a screenshot and a goal. Use this instead of extract_content for availability specific requests. Eg. extract all available dates, times, slots, etc. from the screenshot',
 		)
-		async def extract_content(goal: str, browser: BrowserContext, page_extraction_llm: BaseChatModel):
-			page = await browser.get_current_page()
-			import markdownify
+		async def extract_availability_content(goal: str, browser: BrowserContext, page_extraction_llm: BaseChatModel):
+			screenshot = await browser.take_screenshot(full_page=True)
 
-			content = markdownify.markdownify(await page.content())
-
-			prompt = 'Your task is to extract the content of the page. You will be given a page and a goal and you should extract all relevant information around this goal from the page. If the goal is vague, summarize the page. Respond in json format. Extraction goal: {goal}, Page: {page}'
-			template = PromptTemplate(input_variables=['goal', 'page'], template=prompt)
+			prompt = (
+				'Your task is to extract the availability content from the screenshot. You will be given a screenshot and a goal and you should extract all relevant information around this goal from the screenshot. Respond in json format:\n\n'
+				f'[data:image/png;base64,{screenshot}]\n\n'
+				f'Extraction goal: {goal}'
+			)
 			try:
-				output = page_extraction_llm.invoke(template.format(goal=goal, page=content))
-				msg = f'📄  Extracted from page\n: {output.content}\n'
+				output = page_extraction_llm.invoke(prompt)
+				msg = f'📄  Availability Extracted from screenshot\n: {output.content}\n'
 				logger.info(msg)
 				return ActionResult(extracted_content=msg, include_in_memory=True)
 			except Exception as e:
 				logger.debug(f'Error extracting content: {e}')
-				msg = f'📄  Extracted from page\n: {content}\n'
-				logger.info(msg)
-				return ActionResult(extracted_content=msg)
+				return ActionResult(extracted_content='Error extracting content from screenshot')
 
 		@self.registry.action(
 			'Scroll down the page by pixel amount - if no amount is specified, scroll down one page',

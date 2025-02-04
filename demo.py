@@ -23,7 +23,7 @@ class AvailabilityItems(BaseModel):
 async def main():
 	controller = Controller(output_model=AvailabilityItems)
 	agent = Agent(
-		task='find the availabilities for Trattoria dall Oste BISTECCA ALLA FIORENTINA in Via Luigi Alamanni, 3, 50123, Firenze from 1 march to 3 march.',
+		task='find the availabilities for the coconut club in singapore from 1st march 2025 to 3rd march 2025',
 		llm=ChatGoogleGenerativeAI(model='gemini-2.0-flash-exp'),
 		controller=controller,
 		browser_context=BrowserContext(
@@ -38,6 +38,7 @@ async def main():
 		),
 	)
 	result = await agent.run()
+	print(result)
 
 
 asyncio.run(main())
