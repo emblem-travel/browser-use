@@ -15,7 +15,6 @@ docker pull ${ecr_repository_uri}
 docker run -d \
   --name ${app_name} \
   --restart always \
-  -p 8080:8080 \
   --env-file /etc/app/environment \
   --log-driver=awslogs \
   --log-opt awslogs-region=us-east-2 \

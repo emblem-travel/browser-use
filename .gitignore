@@ -183,3 +183,4 @@ gcp-login.json
 .idea
 
 terraform/.terraform/
+terraform/terraform.tfstate.d/

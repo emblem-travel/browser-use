@@ -9,8 +9,8 @@ import boto3
 from botocore.exceptions import ClientError
 from pydantic import BaseModel, SecretStr
 
-from app import run_browser_use
-from db import get_db
+from app import AvailabilityItem, run_browser_use
+from publisher import emblem_platform_publisher
 
 
 class CreateTaskRequest(BaseModel):
@@ -104,6 +104,14 @@ class SQSConsumer:
 				self.logger.error(f'Error receiving messages: {e}')
 				await asyncio.sleep(1)  # Avoid tight loop in case of persistent errors
 
+class BrowserUseAvailabilityRequest(BaseModel):
+    task: str
+    availability_check_id: int
+
+class BrowserUseAvailabilityResponse(BaseModel):
+	items: list[AvailabilityItem]
+	availability_check_id: int
+	type: str = "BROWSER_USE_AVAILABILITY_CHECK_RESPONSE"
 
 class AvailabilityConsumer(SQSConsumer):
 	def __init__(
@@ -122,34 +130,47 @@ class AvailabilityConsumer(SQSConsumer):
 		timeout = int(os.getenv('TIMEOUT_SECONDS', 1200))
 		try:
 			async with asyncio.timeout(timeout):
-				with get_db() as conn:
-					conn.execute('SELECT 1;')
-					message_data = AvailabilityRequest(**message_body)
-					req = message_data.task_data
-					result = await run_browser_use(task=req.task, gemini_api_key=self.gemini_api_key)
-					if result is None:
-						self.logger.info('No availability returned from browser')
-						return True
-					conn.execute(
-						'UPDATE availability_requests SET response_data = %s WHERE id = %s',
-						(
-							json.dumps(
-								[a.model_dump() for a in result.items],
-							),
-							message_data.task_id,
-						),
+				message_data = BrowserUseAvailabilityRequest(**message_body)
+				req = message_data.task
+				result = await run_browser_use(task=req, gemini_api_key=self.gemini_api_key)
+				if result is None:
+					self.logger.info('No availability returned from browser')
+					await emblem_platform_publisher.publish_message(
+						BrowserUseAvailabilityResponse(
+							items=[],
+							availability_check_id=message_data.availability_check_id,
+						)
 					)
 					return True
 
+				await emblem_platform_publisher.publish_message(
+					BrowserUseAvailabilityResponse(
+						items=result.items,
+						availability_check_id=message_data.availability_check_id,
+					)
+				)
+					
+				return True
+
 		except asyncio.TimeoutError:
 			self.logger.error('Timeout while processing message')
-			return False
+			await emblem_platform_publisher.publish_message(
+				BrowserUseAvailabilityResponse(
+					items=[],
+					availability_check_id=message_data.availability_check_id,
+				)
+			)
+			return True
 
 		except Exception as e:
 			self.logger.error(f'Error processing message: {e}', exc_info=True)
-			return False
-		finally:
-			self.logger.info('Closing firefox')
+			await emblem_platform_publisher.publish_message(
+				BrowserUseAvailabilityResponse(
+					items=[],
+					availability_check_id=message_data.availability_check_id,
+				)
+			)
+			return True
 
 
 if __name__ == '__main__':

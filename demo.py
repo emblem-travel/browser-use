@@ -1,11 +1,11 @@
-from browser_use import Agent, BrowserConfig, Controller
-from browser_use.browser.browser import BrowserContext, BrowserContextConfig, Browser
-from langchain_google_genai import ChatGoogleGenerativeAI
 import asyncio
+
+from dotenv import load_dotenv
+from langchain_google_genai import ChatGoogleGenerativeAI
 from pydantic import BaseModel
 
-import asyncio
-from dotenv import load_dotenv
+from browser_use import Agent, BrowserConfig, Controller
+from browser_use.browser.browser import Browser, BrowserContext, BrowserContextConfig
 
 load_dotenv()
 
