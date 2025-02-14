@@ -78,3 +78,9 @@ variable "public_subnet_id" {
   description = "public subnet ID"
   default     = "subnet-091a0fc4faba8ea49"
 }
+
+variable "emblem_platform_sqs_queue_arn" {
+  type        = string
+  description = "public subnet ID"
+  default     = "arn:aws:sqs:us-east-2:339713015370:emblem-platform-qa-queue"
+}
