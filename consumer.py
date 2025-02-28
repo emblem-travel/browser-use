@@ -8,7 +8,6 @@ import sys
 import boto3
 from botocore.exceptions import ClientError
 from pydantic import BaseModel, SecretStr
-
 from app import AvailabilityItem, run_browser_use
 from publisher import emblem_platform_publisher
 
